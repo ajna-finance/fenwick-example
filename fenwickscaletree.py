@@ -32,11 +32,23 @@ class FenwickScaleTree():
     def increment(self, i, x):
         self.vv[i]+=x
         i+=1
-        sc=self.scale(i)
-        while i<=self.n:
-            self.v[i]+=x/sc
-            sc/=self.s[i]
-            i+=i & (-i)
+        j=1 << (self.numBits-1)
+        ii=0
+        sc=1.0
+        while j>0:
+            if (i-1)&j:
+                ii+=j
+            else:
+                if self.s[ii+j]==0:
+                    self.s[ii + j]=1
+                    self.v[ii + j]=0
+                    k=j-1
+                    while k>0:
+                        self.s[ii+k]=0
+                        k-= k&(-k)
+                sc*=self.s[ii+j]
+                self.v[ii+j]+=x/sc
+            j = j >> 1
 
     def zerocumsum(self,i):
         s=0
@@ -88,7 +100,14 @@ if __name__ == '__main__':
     for i in range(1,1000):
         z.increment(i,np.random.rand())
     for i in range(100):
-        z.mult(np.random.randint(1,1000),0.5+np.random.rand())
+        z.mult(np.random.randint(1,1000),0.6+np.random.rand())
+        z.increment(np.random.randint(1,1000),np.random.rand())
+    for i in range(100):
+        z.mult(np.random.randint(1,1000),0)
+        z.mult(np.random.randint(1,1000),0.6+np.random.rand())
+        z.increment(np.random.randint(1,1000),np.random.rand())
+    for i in range(100):
+        z.mult(np.random.randint(1,1000),0.6+np.random.rand())
         z.increment(np.random.randint(1,1000),np.random.rand())
     for i in range(1,1000):
         print(i,z.zerocumsum(i), z.vvzerocumsum(i), z.findcumsum(z.zerocumsum(i)))
