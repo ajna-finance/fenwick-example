@@ -32,7 +32,7 @@ class FenwickScaleTree():
     def increment(self, i, x):
         self.vv[i]+=x
         i+=1
-        j=1 << (self.numBits-1)
+        j=1 << (self.numBits)
         ii=0
         sc=1.0
         while j>0:
@@ -54,9 +54,9 @@ class FenwickScaleTree():
         s=0
         sc=1
         i+=1
-        j=1 << (self.numBits-1)
+        j=1 << (self.numBits)
         ii=0
-        while j>0:
+        while j>0 and ii+j<=self.n:
             if i&j:
                 s+=sc * self.s[ii+j]*self.v[ii+j]
             else:
@@ -90,7 +90,7 @@ class FenwickScaleTree():
 
     def check(self):
         for i in range(1,self.n-1):
-            if abs(self.zerocumsum(i)-self.vvzerocumsum(i)) > 1e-12 * (self.zerocumsum(i)+self.vvzerocumsum(i)):
+            if abs(self.zerocumsum(i)-self.vvzerocumsum(i)) > 1e-15 * (self.zerocumsum(i)+self.vvzerocumsum(i)):
                 print(f"Error at {i} {self.zerocumsum(i)} {self.vvzerocumsum(i)}")
                 return False
         return True
@@ -109,8 +109,12 @@ if __name__ == '__main__':
     for i in range(100):
         z.mult(np.random.randint(1,1000),0.6+np.random.rand())
         z.increment(np.random.randint(1,1000),np.random.rand())
-    for i in range(1,1000):
+    for i in range(1,1024):
         print(i,z.zerocumsum(i), z.vvzerocumsum(i), z.findcumsum(z.zerocumsum(i)))
     print(f"findcumsum of 0 ={z.findcumsum(0)}")
     print(z.check())
+    print(f"item {512} is {z.v[512]} {sum([z.vv[i] for i in range(512)])}")
+    print(f"item {z.n} is {z.v[z.n]} {sum([z.vv[i] for i in range(1,z.n)])}")
+    print(f"item {z.n-1} is {z.v[z.n-1]} {z.vv[z.n-1]}")
+
 
