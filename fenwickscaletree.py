@@ -82,6 +82,20 @@ class FenwickScaleTree():
     def rangesum(self, i,j):
         return self.zerocumsum(j)-self.zerocumsum(i-1)
 
+    def valueAtIndex(self, i):
+            i += 1
+            s=self.v[i]
+            j=i-1
+            k=1
+            while j&k:
+                s -= self.s[j] * self.v[j]
+                j=j-k
+                k=k<<1
+            while i <= self.n:
+                s *= self.s[i]
+                i += i & (-i)
+            return s
+
     def vvzerocumsum(self,i):
         s=0
         for j in range(1+i):
@@ -90,9 +104,13 @@ class FenwickScaleTree():
 
     def check(self):
         for i in range(1,self.n-1):
-            if abs(self.zerocumsum(i)-self.vvzerocumsum(i)) > 1e-15 * (self.zerocumsum(i)+self.vvzerocumsum(i)):
-                print(f"Error at {i} {self.zerocumsum(i)} {self.vvzerocumsum(i)}")
+            if abs(self.zerocumsum(i)-self.vvzerocumsum(i)) > 1e-10 * (self.zerocumsum(i)+self.vvzerocumsum(i)):
+                print(f"CumSum Error at {i} {self.zerocumsum(i)} {self.vvzerocumsum(i)}")
                 return False
+            if abs(self.valueAtIndex(i) - self.vv[i]) > 1e-10 * (abs(self.valueAtIndex(i)) + abs(self.vv[i])):
+                print(f'valueAtIndex Error at {i}  {self.valueAtIndex(i)} - {self.vv[i]}')
+                return False
+
         return True
 
 if __name__ == '__main__':
@@ -100,17 +118,16 @@ if __name__ == '__main__':
     for i in range(1,1000):
         z.increment(i,np.random.rand())
     for i in range(100):
-        z.mult(np.random.randint(1,1000),0.6+np.random.rand())
+        z.mult(np.random.randint(1,1000),1.0+0.02*np.random.rand())
         z.increment(np.random.randint(1,1000),np.random.rand())
     for i in range(100):
-        z.mult(np.random.randint(1,1000),0)
-        z.mult(np.random.randint(1,1000),0.6+np.random.rand())
+        z.mult(np.random.randint(1,1000),1.0+0.02*np.random.rand())
         z.increment(np.random.randint(1,1000),np.random.rand())
     for i in range(100):
-        z.mult(np.random.randint(1,1000),0.6+np.random.rand())
+        z.mult(np.random.randint(1,1000),1.0+0.02*np.random.rand())
         z.increment(np.random.randint(1,1000),np.random.rand())
     for i in range(1,1024):
-        print(i,z.zerocumsum(i), z.vvzerocumsum(i), z.findcumsum(z.zerocumsum(i)))
+        print(f'i={i} valueAtIndex={z.valueAtIndex(i)} computed={z.zerocumsum(i)-z.zerocumsum(i-1)}')
     print(f"findcumsum of 0 ={z.findcumsum(0)}")
     print(z.check())
     print(f"item {512} is {z.v[512]} {sum([z.vv[i] for i in range(512)])}")
