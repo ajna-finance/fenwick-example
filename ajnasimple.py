@@ -89,7 +89,7 @@ class AjnaPool:
         return (self.n-k)
 
     def priceToIndex(self,p):
-        return int(max(0,min(self.n,np.round(self.n-p))))
+        return int(max(0,min(self.n-1,np.round(self.n-p))))
 
     def depositAboveHTP(self):
         return self.deposits.zerocumsum(self.priceToIndex(self.HTP()))
